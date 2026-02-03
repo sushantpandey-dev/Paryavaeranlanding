@@ -1,7 +1,8 @@
-import { Mail, Lock, Leaf } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, AlertCircle, ArrowRight, Leaf, Sparkles } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { useState } from "react";
+import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 
 interface LoginPageProps {
   onNavigate: (page: string) => void;
@@ -12,141 +13,362 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+    general?: string;
+  }>({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login
-    alert("Login functionality will be implemented soon!");
+    setErrors({});
+
+    // Validation
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Simulate API call
+    setIsLoading(true);
+    
+    // Mock authentication logic
+    setTimeout(() => {
+      setIsLoading(false);
+      
+      // Demo credentials for testing (admin@paryavaran.com/admin123 or bandhu@paryavaran.com/bandhu123)
+      if (
+        formData.email === "admin@paryavaran.com" &&
+        formData.password === "admin123"
+      ) {
+        alert("Login successful! Redirecting to Admin Dashboard...");
+        // In real app: redirect to admin dashboard
+      } else if (
+        formData.email === "bandhu@paryavaran.com" &&
+        formData.password === "bandhu123"
+      ) {
+        alert("Login successful! Redirecting to Bandhu Dashboard...");
+        // In real app: redirect to bandhu dashboard
+      } else {
+        setErrors({
+          general: "Invalid email or password. Please try again.",
+        });
+      }
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+    <div className="min-h-screen flex">
+      {/* Left Side - Form */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-white relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-green-100 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5">
+          <div className="w-full h-full" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316a34a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+        </div>
+
+        <div className="max-w-md w-full relative z-10">
           {/* Logo & Header */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-green-600 p-3 rounded-xl">
+          <div className="text-center mb-8">
+            <div 
+              onClick={() => onNavigate("home")}
+              className="inline-flex items-center gap-3 mb-8 cursor-pointer group"
+            >
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 <Leaf className="size-8 text-white" />
               </div>
+              <div className="text-left">
+                <h1 className="text-2xl font-bold text-gray-900">Paryavaran Bandhu</h1>
+                <p className="text-xs text-green-600 font-medium">Environmental Volunteer Platform</p>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-            <p className="mt-2 text-gray-600">Sign in to your Bandhu account</p>
+            
+            <div className="space-y-2">
+              <h2 className="text-4xl font-bold text-gray-900">
+                Welcome Back
+              </h2>
+              <p className="text-lg text-gray-600">
+                Sign in to continue your environmental journey
+              </p>
+            </div>
           </div>
 
+          {/* Error Alert */}
+          {errors.general && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 flex items-start gap-3 animate-in slide-in-from-top">
+              <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-red-800">
+                  Authentication Failed
+                </p>
+                <p className="text-sm text-red-700 mt-1">{errors.general}</p>
+              </div>
+            </div>
+          )}
+
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
                 <Input
+                  id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="your@email.com"
-                  required
-                  className="pl-10 w-full"
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (errors.email) {
+                      setErrors({ ...errors, email: undefined });
+                    }
+                  }}
+                  placeholder="you@example.com"
+                  className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                    errors.email 
+                      ? "border-red-500 focus:ring-red-500" 
+                      : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5 animate-in slide-in-from-top">
+                  <AlertCircle className="size-4" />
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
                 <Input
-                  type="password"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  placeholder="••••••••"
-                  required
-                  className="pl-10 w-full"
+                  onChange={(e) => {
+                    setFormData({ ...formData, password: e.target.value });
+                    if (errors.password) {
+                      setErrors({ ...errors, password: undefined });
+                    }
+                  }}
+                  placeholder="Enter your password"
+                  className={`pl-12 pr-12 h-12 text-base border-2 rounded-xl transition-all ${
+                    errors.password 
+                      ? "border-red-500 focus:ring-red-500" 
+                      : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                  }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-5" />
+                  ) : (
+                    <Eye className="size-5" />
+                  )}
+                </button>
               </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5 animate-in slide-in-from-top">
+                  <AlertCircle className="size-4" />
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center">
+              <label className="flex items-center cursor-pointer group">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
                 />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
+                <span className="ml-2 text-sm text-gray-700 group-hover:text-gray-900">
+                  Remember me
+                </span>
               </label>
-              <a href="#" className="text-sm text-green-600 hover:text-green-700">
+              <button
+                type="button"
+                onClick={() => alert("Password reset functionality coming soon!")}
+                className="text-sm text-green-600 hover:text-green-700 font-semibold hover:underline"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             <Button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
-              Sign In
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Signing in...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  Sign In
+                  <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              )}
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
-            </div>
-          </div>
-
-          {/* Social Login */}
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="size-5 mr-2" viewBox="0 0 24 24">
-                <path
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  fill="#4285F4"
-                />
-                <path
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  fill="#34A853"
-                />
-                <path
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  fill="#FBBC05"
-                />
-                <path
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  fill="#EA4335"
-                />
-              </svg>
-              Google
-            </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="size-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              GitHub
-            </button>
-          </div>
-
           {/* Sign Up Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div className="text-center mt-8">
+            <p className="text-gray-600">
               Don't have an account?{" "}
               <button
+                type="button"
                 onClick={() => onNavigate("signup")}
-                className="text-green-600 hover:text-green-700 font-semibold"
+                className="text-green-600 hover:text-green-700 font-bold hover:underline"
               >
-                Sign up now
+                Sign up for free
               </button>
             </p>
+          </div>
+
+          {/* Back to Home */}
+          <div className="text-center mt-6">
+            <button
+              type="button"
+              onClick={() => onNavigate("home")}
+              className="text-sm text-gray-500 hover:text-gray-700 inline-flex items-center gap-1 group"
+            >
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Image & Info */}
+      <div className="hidden lg:flex lg:flex-1 relative bg-gradient-to-br from-green-600 via-emerald-600 to-green-700 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <ImageWithFallback
+            src="https://images.unsplash.com/photo-1758599668125-e154250f24bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbnZpcm9ubWVudGFsJTIwdm9sdW50ZWVyaW5nJTIwY29tbXVuaXR5JTIwZ3JlZW58ZW58MXx8fHwxNzcwMDk4NTIzfDA&ixlib=rb-4.1.0&q=80&w=1080"
+            alt="Environmental volunteering"
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+        
+        {/* Overlay Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="w-full h-full" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+              <Sparkles className="size-4" />
+              <span className="text-sm font-medium">Join 12,500+ Bandhus</span>
+            </div>
+            
+            <h2 className="text-5xl font-bold leading-tight">
+              Make a Real Impact on Our Planet
+            </h2>
+            
+            <p className="text-xl text-green-50 leading-relaxed">
+              Connect with environmental tasks, learn sustainable practices, and earn rewards while making a difference in your community.
+            </p>
+
+            <div className="space-y-4 pt-4">
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Learn & Grow</h3>
+                  <p className="text-green-50">Access 200+ educational courses on environmental topics</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Take Action</h3>
+                  <p className="text-green-50">Participate in location-based environmental tasks</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg className="size-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">Earn Rewards</h3>
+                  <p className="text-green-50">Get recognized with points, badges, and exclusive perks</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20">
+              <div>
+                <div className="text-4xl font-bold mb-1">50K+</div>
+                <div className="text-green-100 text-sm">Trees Planted</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-1">200+</div>
+                <div className="text-green-100 text-sm">Courses</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-1">50+</div>
+                <div className="text-green-100 text-sm">Cities</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
