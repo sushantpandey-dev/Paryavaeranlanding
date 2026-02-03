@@ -1,223 +1,944 @@
-import { Mail, Lock, User, MapPin, Leaf } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  MapPin,
+  Home,
+  Map,
+  Navigation,
+  Leaf,
+  Sparkles,
+  AlertCircle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+} from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { useState } from "react";
+import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 
 interface SignupPageProps {
   onNavigate: (page: string) => void;
 }
 
+// Indian states for autocomplete
+const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Jammu and Kashmir",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
+
 export function SignupPage({ onNavigate }: SignupPageProps) {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    city: "",
     password: "",
-    confirmPassword: "",
+    phone: "",
+    city: "",
+    state: "",
+    pincode: "",
+    address: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+  const [coordinates, setCoordinates] = useState<{
+    latitude: number | null;
+    longitude: number | null;
+  }>({
+    latitude: null,
+    longitude: null,
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
+  const [filteredStates, setFilteredStates] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validatePincode = (pincode: string) => {
+    const pincodeRegex = /^\d{6}$/;
+    return pincodeRegex.test(pincode);
+  };
+
+  const handleStateInput = (value: string) => {
+    setFormData({ ...formData, state: value });
+    if (value.trim()) {
+      const filtered = INDIAN_STATES.filter((state) =>
+        state.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredStates(filtered);
+      setShowStateDropdown(true);
+    } else {
+      setShowStateDropdown(false);
+    }
+  };
+
+  const selectState = (state: string) => {
+    setFormData({ ...formData, state });
+    setShowStateDropdown(false);
+  };
+
+  const handlePincodeBlur = async () => {
+    if (validatePincode(formData.pincode)) {
+      // Mock API call to fetch location from pincode
+      // In real app, use a postal code API
+      setIsFetchingLocation(true);
+      setTimeout(() => {
+        // Mock data
+        setFormData({
+          ...formData,
+          city: "Sample City",
+          state: "Maharashtra",
+        });
+        setCoordinates({
+          latitude: 19.076,
+          longitude: 72.8777,
+        });
+        setIsFetchingLocation(false);
+      }, 1000);
+    }
+  };
+
+  const fetchCoordsFromCity = async () => {
+    if (!formData.city.trim()) {
+      setErrors({ ...errors, city: "Please enter a city name first" });
       return;
     }
-    // Handle signup
-    alert("Welcome to Paryavaran Bandhu! Signup functionality will be implemented soon.");
+
+    setIsFetchingLocation(true);
+    // Mock API call to geocode city
+    setTimeout(() => {
+      // Mock coordinates
+      setCoordinates({
+        latitude: 19.076 + Math.random() * 0.1,
+        longitude: 72.8777 + Math.random() * 0.1,
+      });
+      setIsFetchingLocation(false);
+    }, 1000);
+  };
+
+  const getCurrentLocation = () => {
+    if ("geolocation" in navigator) {
+      setIsFetchingLocation(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCoordinates({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          });
+          setIsFetchingLocation(false);
+        },
+        (error) => {
+          alert("Unable to get location. Please check your browser permissions.");
+          setIsFetchingLocation(false);
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    const newErrors: Record<string, string> = {};
+
+    // Validate all fields
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = "Please enter a valid 10-digit phone number";
+    }
+    if (!formData.city.trim()) {
+      newErrors.city = "City is required";
+    }
+    if (!formData.state.trim()) {
+      newErrors.state = "State is required";
+    }
+    if (!formData.pincode) {
+      newErrors.pincode = "Pincode is required";
+    } else if (!validatePincode(formData.pincode)) {
+      newErrors.pincode = "Pincode must be 6 digits";
+    }
+    if (!formData.address.trim()) {
+      newErrors.address = "Address is required";
+    }
+    if (coordinates.latitude === null || coordinates.longitude === null) {
+      newErrors.coordinates = "Please capture your location coordinates";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    // Submit form
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      alert(
+        `Account created successfully!\nWelcome ${formData.firstName} ${formData.lastName}!\nRedirecting to Bandhu Dashboard...`
+      );
+      // In real app: redirect to dashboard
+    }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8 space-y-8">
+    <div className="min-h-screen flex">
+      {/* Left Side - Form */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-white relative overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-green-100 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2316a34a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          ></div>
+        </div>
+
+        <div className="max-w-2xl w-full relative z-10">
           {/* Logo & Header */}
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-green-600 p-3 rounded-xl">
+          <div className="text-center mb-8">
+            <div
+              onClick={() => onNavigate("home")}
+              className="inline-flex items-center gap-3 mb-6 cursor-pointer group"
+            >
+              <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-3 rounded-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 <Leaf className="size-8 text-white" />
               </div>
+              <div className="text-left">
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Paryavaran Bandhu
+                </h1>
+                <p className="text-xs text-green-600 font-medium">
+                  Environmental Volunteer Platform
+                </p>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Join the Movement</h2>
-            <p className="mt-2 text-gray-600">Become a Bandhu and make a difference</p>
+
+            <div className="space-y-2">
+              <h2 className="text-4xl font-bold text-gray-900">
+                Create your account
+              </h2>
+              <p className="text-lg text-gray-600">
+                Join thousands of Bandhus making a difference
+              </p>
+            </div>
           </div>
+
+          {/* General Error */}
+          {errors.coordinates && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4 flex items-start gap-3 animate-in slide-in-from-top">
+              <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-red-800">
+                  Location Required
+                </p>
+                <p className="text-sm text-red-700 mt-1">
+                  {errors.coordinates}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Signup Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name
-              </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <Input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="Your full name"
-                  required
-                  className="pl-10 w-full"
-                />
+            {/* Name Fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  First Name
+                </label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
+                  <Input
+                    id="firstName"
+                    type="text"
+                    value={formData.firstName}
+                    onChange={(e) => {
+                      setFormData({ ...formData, firstName: e.target.value });
+                      if (errors.firstName) {
+                        setErrors({ ...errors, firstName: undefined });
+                      }
+                    }}
+                    placeholder="First name"
+                    className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                      errors.firstName
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    }`}
+                  />
+                </div>
+                {errors.firstName && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="size-4" />
+                    {errors.firstName}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Last Name
+                </label>
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
+                  <Input
+                    id="lastName"
+                    type="text"
+                    value={formData.lastName}
+                    onChange={(e) => {
+                      setFormData({ ...formData, lastName: e.target.value });
+                      if (errors.lastName) {
+                        setErrors({ ...errors, lastName: undefined });
+                      }
+                    }}
+                    placeholder="Last name"
+                    className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                      errors.lastName
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    }`}
+                  />
+                </div>
+                {errors.lastName && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="size-4" />
+                    {errors.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
                 <Input
+                  id="email"
                   type="email"
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="your@email.com"
-                  required
-                  className="pl-10 w-full"
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (errors.email) {
+                      setErrors({ ...errors, email: undefined });
+                    }
+                  }}
+                  placeholder="you@example.com"
+                  className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                    errors.email
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                  }`}
                 />
               </div>
+              {errors.email && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                  <AlertCircle className="size-4" />
+                  {errors.email}
+                </p>
+              )}
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                City
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <Input
-                  type="text"
-                  value={formData.city}
-                  onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
-                  }
-                  placeholder="Your city"
-                  required
-                  className="pl-10 w-full"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
                 <Input
-                  type="password"
+                  id="password"
+                  type={showPassword ? "text" : "password"}
                   value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  placeholder="Create a password"
-                  required
-                  minLength={8}
-                  className="pl-10 w-full"
+                  onChange={(e) => {
+                    setFormData({ ...formData, password: e.target.value });
+                    if (errors.password) {
+                      setErrors({ ...errors, password: undefined });
+                    }
+                  }}
+                  placeholder="Minimum 6 characters"
+                  className={`pl-12 pr-12 h-12 text-base border-2 rounded-xl transition-all ${
+                    errors.password
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                  }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-5" />
+                  ) : (
+                    <Eye className="size-5" />
+                  )}
+                </button>
               </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                  <AlertCircle className="size-4" />
+                  {errors.password}
+                </p>
+              )}
             </div>
 
+            {/* Phone */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
+              <label
+                htmlFor="phone"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Phone Number
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <div className="relative group">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
                 <Input
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({ ...formData, confirmPassword: e.target.value })
-                  }
-                  placeholder="Confirm your password"
-                  required
-                  minLength={8}
-                  className="pl-10 w-full"
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setFormData({ ...formData, phone: value });
+                    if (errors.phone) {
+                      setErrors({ ...errors, phone: undefined });
+                    }
+                  }}
+                  placeholder="10-digit mobile number"
+                  className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                    errors.phone
+                      ? "border-red-500 focus:ring-red-500"
+                      : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                  }`}
                 />
+              </div>
+              {errors.phone && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                  <AlertCircle className="size-4" />
+                  {errors.phone}
+                </p>
+              )}
+            </div>
+
+            {/* Location Section Header */}
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 mb-4">
+                <MapPin className="size-5 text-green-600" />
+                Location Information
+              </h3>
+            </div>
+
+            {/* City with Fetch Coords Button */}
+            <div>
+              <label
+                htmlFor="city"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                City
+              </label>
+              <div className="flex gap-2">
+                <div className="relative group flex-1">
+                  <Map className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
+                  <Input
+                    id="city"
+                    type="text"
+                    value={formData.city}
+                    onChange={(e) => {
+                      setFormData({ ...formData, city: e.target.value });
+                      if (errors.city) {
+                        setErrors({ ...errors, city: undefined });
+                      }
+                    }}
+                    placeholder="Your city"
+                    className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                      errors.city
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    }`}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={fetchCoordsFromCity}
+                  disabled={isFetchingLocation}
+                  className="bg-green-600 hover:bg-green-700 text-white h-12 px-6 rounded-xl whitespace-nowrap"
+                >
+                  {isFetchingLocation ? "Fetching..." : "Fetch Coords"}
+                </Button>
+              </div>
+              {errors.city && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                  <AlertCircle className="size-4" />
+                  {errors.city}
+                </p>
+              )}
+            </div>
+
+            {/* State and Pincode */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative">
+                <label
+                  htmlFor="state"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  State
+                </label>
+                <div className="relative group">
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors z-10" />
+                  <Input
+                    id="state"
+                    type="text"
+                    value={formData.state}
+                    onChange={(e) => {
+                      handleStateInput(e.target.value);
+                      if (errors.state) {
+                        setErrors({ ...errors, state: undefined });
+                      }
+                    }}
+                    onFocus={() => {
+                      if (formData.state) {
+                        const filtered = INDIAN_STATES.filter((state) =>
+                          state.toLowerCase().includes(formData.state.toLowerCase())
+                        );
+                        setFilteredStates(filtered);
+                        setShowStateDropdown(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      setTimeout(() => setShowStateDropdown(false), 200);
+                    }}
+                    placeholder="Select state"
+                    className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                      errors.state
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    }`}
+                  />
+                  {showStateDropdown && filteredStates.length > 0 && (
+                    <div className="absolute z-20 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                      {filteredStates.map((state) => (
+                        <button
+                          key={state}
+                          type="button"
+                          onClick={() => selectState(state)}
+                          className="w-full text-left px-4 py-3 hover:bg-green-50 transition-colors text-sm"
+                        >
+                          {state}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {errors.state && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="size-4" />
+                    {errors.state}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="pincode"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Pincode
+                </label>
+                <div className="relative group">
+                  <Home className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-gray-400 group-focus-within:text-green-600 transition-colors" />
+                  <Input
+                    id="pincode"
+                    type="text"
+                    value={formData.pincode}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      setFormData({ ...formData, pincode: value });
+                      if (errors.pincode) {
+                        setErrors({ ...errors, pincode: undefined });
+                      }
+                    }}
+                    onBlur={handlePincodeBlur}
+                    placeholder="6-digit pincode"
+                    className={`pl-12 h-12 text-base border-2 rounded-xl transition-all ${
+                      errors.pincode
+                        ? "border-red-500 focus:ring-red-500"
+                        : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                    }`}
+                  />
+                </div>
+                {errors.pincode && (
+                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                    <AlertCircle className="size-4" />
+                    {errors.pincode}
+                  </p>
+                )}
               </div>
             </div>
 
-            <div className="flex items-start">
-              <input
-                type="checkbox"
-                required
-                className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
-              />
-              <label className="ml-2 text-sm text-gray-600">
-                I agree to the{" "}
-                <a href="#" className="text-green-600 hover:text-green-700">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-green-600 hover:text-green-700">
-                  Privacy Policy
-                </a>
+            {/* Address */}
+            <div>
+              <label
+                htmlFor="address"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Address
               </label>
+              <textarea
+                id="address"
+                value={formData.address}
+                onChange={(e) => {
+                  setFormData({ ...formData, address: e.target.value });
+                  if (errors.address) {
+                    setErrors({ ...errors, address: undefined });
+                  }
+                }}
+                placeholder="Enter your full address"
+                rows={3}
+                className={`w-full px-4 py-3 text-base border-2 rounded-xl transition-all resize-none focus:outline-none focus:ring-2 ${
+                  errors.address
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-200 focus:border-green-500 focus:ring-green-500"
+                }`}
+              />
+              {errors.address && (
+                <p className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+                  <AlertCircle className="size-4" />
+                  {errors.address}
+                </p>
+              )}
             </div>
 
+            {/* GPS Location Capture */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Navigation className="size-5 text-green-600" />
+                  <h4 className="font-semibold text-gray-900">
+                    Capture Location
+                  </h4>
+                </div>
+                {coordinates.latitude && coordinates.longitude && (
+                  <CheckCircle2 className="size-5 text-green-600" />
+                )}
+              </div>
+
+              <p className="text-sm text-gray-600 mb-4">
+                We need your location to connect you with nearby environmental
+                tasks and activities. Choose any option below:
+              </p>
+
+              <Button
+                type="button"
+                onClick={getCurrentLocation}
+                disabled={isFetchingLocation}
+                className="w-full bg-green-600 hover:bg-green-700 text-white h-12 rounded-xl flex items-center justify-center gap-2 mb-4"
+              >
+                <Navigation className="size-5" />
+                {isFetchingLocation
+                  ? "Getting Location..."
+                  : "Get My Location (GPS)"}
+              </Button>
+
+              {coordinates.latitude && coordinates.longitude && (
+                <div className="bg-white border border-green-300 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-semibold text-gray-700">
+                      Latitude:
+                    </span>
+                    <span className="text-gray-900 font-mono">
+                      {coordinates.latitude.toFixed(6)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-semibold text-gray-700">
+                      Longitude:
+                    </span>
+                    <span className="text-gray-900 font-mono">
+                      {coordinates.longitude.toFixed(6)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-green-700 flex items-center gap-1.5 mt-2">
+                    <CheckCircle2 className="size-4" />
+                    Location captured successfully!
+                  </p>
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500 mt-3">
+                💡 <strong>Tip:</strong> You can also enter your pincode to
+                auto-fill location, or click "Fetch Coords" next to the city
+                field.
+              </p>
+            </div>
+
+            {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white h-14 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group"
             >
-              Create Account
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating Account...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  Create Account
+                  <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              )}
             </Button>
           </form>
 
-          {/* Divider */}
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-            </div>
-          </div>
-
-          {/* Social Signup */}
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="size-5 mr-2" viewBox="0 0 24 24">
-                <path
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  fill="#4285F4"
-                />
-                <path
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  fill="#34A853"
-                />
-                <path
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  fill="#FBBC05"
-                />
-                <path
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  fill="#EA4335"
-                />
-              </svg>
-              Google
-            </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              <svg className="size-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              GitHub
-            </button>
-          </div>
-
           {/* Login Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+          <div className="text-center mt-8">
+            <p className="text-gray-600">
               Already have an account?{" "}
               <button
+                type="button"
                 onClick={() => onNavigate("login")}
-                className="text-green-600 hover:text-green-700 font-semibold"
+                className="text-green-600 hover:text-green-700 font-bold hover:underline"
               >
                 Sign in
               </button>
             </p>
+          </div>
+
+          {/* Back to Home */}
+          <div className="text-center mt-6">
+            <button
+              type="button"
+              onClick={() => onNavigate("home")}
+              className="text-sm text-gray-500 hover:text-gray-700 inline-flex items-center gap-1 group"
+            >
+              <span className="group-hover:-translate-x-1 transition-transform">
+                ←
+              </span>
+              Back to Home
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Image & Info */}
+      <div className="hidden lg:flex lg:flex-1 relative bg-gradient-to-br from-emerald-600 via-green-600 to-teal-700 overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <ImageWithFallback
+            src="https://images.unsplash.com/photo-1758599668360-48ba8ba71b47?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmVlJTIwcGxhbnRpbmclMjB2b2x1bnRlZXJzJTIwY29tbXVuaXR5fGVufDF8fHx8MTc3MDAwOTQxNnww&ixlib=rb-4.1.0&q=80&w=1080"
+            alt="Tree planting volunteers"
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+
+        {/* Overlay Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          ></div>
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+              <Sparkles className="size-4" />
+              <span className="text-sm font-medium">
+                Start Your Journey Today
+              </span>
+            </div>
+
+            <h2 className="text-5xl font-bold leading-tight">
+              Become a Paryavaran Bandhu
+            </h2>
+
+            <p className="text-xl text-green-50 leading-relaxed">
+              Join our community of environmental champions dedicated to creating
+              a sustainable future for our planet.
+            </p>
+
+            <div className="space-y-4 pt-4">
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg
+                    className="size-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">
+                    Quick & Easy Registration
+                  </h3>
+                  <p className="text-green-50">
+                    Complete setup in just 2 minutes and start making an impact
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg
+                    className="size-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">
+                    Location-Based Tasks
+                  </h3>
+                  <p className="text-green-50">
+                    Get matched with environmental activities near you
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-2 flex-shrink-0">
+                  <svg
+                    className="size-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">
+                    Track Your Impact
+                  </h3>
+                  <p className="text-green-50">
+                    Monitor your contributions and earn recognition
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-8 pt-8 border-t border-white/20">
+              <div>
+                <div className="text-4xl font-bold mb-1">12.5K+</div>
+                <div className="text-green-100 text-sm">Active Bandhus</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-1">500+</div>
+                <div className="text-green-100 text-sm">Tasks Completed</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold mb-1">98%</div>
+                <div className="text-green-100 text-sm">Satisfaction Rate</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
