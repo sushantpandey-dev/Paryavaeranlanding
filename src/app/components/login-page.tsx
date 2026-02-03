@@ -69,8 +69,7 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
         formData.email === "bandhu@paryavaran.com" &&
         formData.password === "bandhu123"
       ) {
-        alert("Login successful! Redirecting to Bandhu Dashboard...");
-        // In real app: redirect to bandhu dashboard
+        onNavigate("bandhu-dashboard");
       } else {
         setErrors({
           general: "Invalid email or password. Please try again.",

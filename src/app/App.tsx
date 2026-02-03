@@ -14,8 +14,9 @@ import { FAQPage } from "@/app/components/faq-page";
 import { ContactPage } from "@/app/components/contact-page";
 import { LoginPage } from "@/app/components/login-page";
 import { SignupPage } from "@/app/components/signup-page";
+import { BandhuDashboard } from "@/app/components/bandhu-dashboard";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -67,6 +68,8 @@ export default function App() {
       {currentPage === "login" && <LoginPage onNavigate={handleNavigate} />}
 
       {currentPage === "signup" && <SignupPage onNavigate={handleNavigate} />}
+
+      {currentPage === "bandhu-dashboard" && <BandhuDashboard onNavigate={handleNavigate} />}
     </div>
   );
 }
