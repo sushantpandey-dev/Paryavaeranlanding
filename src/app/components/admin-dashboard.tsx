@@ -10,6 +10,7 @@ import {
   Clock,
   XCircle,
   AlertCircle,
+  MapPin,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -425,13 +426,13 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </Button>
 
               <Button
-                variant="outline"
-                className="h-auto p-6 border-2 hover:bg-gray-50"
+                onClick={() => onNavigate("task-management-admin")}
+                className="h-auto p-6 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-md"
               >
                 <div className="flex flex-col items-center gap-2">
-                  <UserPlus className="size-8 text-purple-600" />
-                  <span className="font-semibold">Referral Review</span>
-                  <span className="text-xs text-gray-600">Verify referrals</span>
+                  <MapPin className="size-8" />
+                  <span className="font-semibold">Task Management</span>
+                  <span className="text-xs opacity-90">Create and assign tasks</span>
                 </div>
               </Button>
 
@@ -440,9 +441,9 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                 className="h-auto p-6 border-2 hover:bg-gray-50"
               >
                 <div className="flex flex-col items-center gap-2">
-                  <Coins className="size-8 text-amber-600" />
-                  <span className="font-semibold">Reward Config</span>
-                  <span className="text-xs text-gray-600">Configure rewards</span>
+                  <UserPlus className="size-8 text-purple-600" />
+                  <span className="font-semibold">Referral Review</span>
+                  <span className="text-xs text-gray-600">Verify referrals</span>
                 </div>
               </Button>
             </div>

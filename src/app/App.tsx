@@ -1,31 +1,32 @@
 import { useState } from "react";
-import { Navigation } from "@/app/components/navigation";
-import { Hero } from "@/app/components/hero";
-import { Features } from "@/app/components/features";
-import { HowItWorks } from "@/app/components/how-it-works";
-import { ImpactStats } from "@/app/components/impact-stats";
-import { RecentActivities } from "@/app/components/recent-activities";
-import { EducationalResources } from "@/app/components/educational-resources";
-import { Testimonials } from "@/app/components/testimonials";
-import { RewardSystem } from "@/app/components/reward-system";
-import { FinalCTA } from "@/app/components/final-cta";
-import { Footer } from "@/app/components/footer";
-import { FAQPage } from "@/app/components/faq-page";
-import { ContactPage } from "@/app/components/contact-page";
-import { LoginPage } from "@/app/components/login-page";
-import { SignupPage } from "@/app/components/signup-page";
-import { BandhuDashboard } from "@/app/components/bandhu-dashboard";
-import { LearningPortal } from "@/app/components/learning-portal";
-import { ReferralPortal } from "@/app/components/referral-portal";
-import { TaskManagement } from "@/app/components/task-management";
-import { SupportTickets } from "@/app/components/support-tickets";
-import { ProfilePage } from "@/app/components/profile-page";
-import { AdminDashboard } from "@/app/components/admin-dashboard";
-import { UserManagement } from "@/app/components/user-management";
-import { LearningContentManagement } from "@/app/components/learning-content-management";
-import { LearningContentDetail } from "@/app/components/learning-content-detail";
+import { Navigation } from "./components/navigation";
+import { Hero } from "./components/hero";
+import { Features } from "./components/features";
+import { HowItWorks } from "./components/how-it-works";
+import { ImpactStats } from "./components/impact-stats";
+import { RecentActivities } from "./components/recent-activities";
+import { EducationalResources } from "./components/educational-resources";
+import { Testimonials } from "./components/testimonials";
+import { RewardSystem } from "./components/reward-system";
+import { FinalCTA } from "./components/final-cta";
+import { Footer } from "./components/footer";
+import { FAQPage } from "./components/faq-page";
+import { ContactPage } from "./components/contact-page";
+import { LoginPage } from "./components/login-page";
+import { SignupPage } from "./components/signup-page";
+import { BandhuDashboard } from "./components/bandhu-dashboard";
+import { LearningPortal } from "./components/learning-portal";
+import { ReferralPortal } from "./components/referral-portal";
+import { TaskManagement } from "./components/task-management";
+import { SupportTickets } from "./components/support-tickets";
+import { ProfilePage } from "./components/profile-page";
+import { AdminDashboard } from "./components/admin-dashboard";
+import { UserManagement } from "./components/user-management";
+import { LearningContentManagement } from "./components/learning-content-management";
+import { LearningContentDetail } from "./components/learning-content-detail";
+import { TaskManagementAdmin } from "./components/task-management-admin";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail" | "task-management-admin";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -101,6 +102,8 @@ export default function App() {
       {currentPage === "learning-content-management" && <LearningContentManagement onNavigate={handleNavigate} />}
 
       {currentPage === "learning-content-detail" && <LearningContentDetail onNavigate={handleNavigate} contentId={contentId} />}
+
+      {currentPage === "task-management-admin" && <TaskManagementAdmin onNavigate={handleNavigate} />}
     </div>
   );
 }
