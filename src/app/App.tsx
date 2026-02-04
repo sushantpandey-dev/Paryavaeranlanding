@@ -23,14 +23,19 @@ import { ProfilePage } from "@/app/components/profile-page";
 import { AdminDashboard } from "@/app/components/admin-dashboard";
 import { UserManagement } from "@/app/components/user-management";
 import { LearningContentManagement } from "@/app/components/learning-content-management";
+import { LearningContentDetail } from "@/app/components/learning-content-detail";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
+  const [contentId, setContentId] = useState<number>(1);
 
-  const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string, id?: number) => {
     setCurrentPage(page as Page);
+    if (id !== undefined) {
+      setContentId(id);
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -94,6 +99,8 @@ export default function App() {
       {currentPage === "user-management" && <UserManagement onNavigate={handleNavigate} />}
 
       {currentPage === "learning-content-management" && <LearningContentManagement onNavigate={handleNavigate} />}
+
+      {currentPage === "learning-content-detail" && <LearningContentDetail onNavigate={handleNavigate} contentId={contentId} />}
     </div>
   );
 }

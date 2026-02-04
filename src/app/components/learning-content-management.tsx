@@ -28,7 +28,7 @@ import {
 } from "@/app/components/ui/select";
 
 interface LearningContentManagementProps {
-  onNavigate: (page: string) => void;
+  onNavigate: (page: string, contentId?: number) => void;
 }
 
 interface LearningContent {
@@ -637,7 +637,12 @@ export function LearningContentManagement({ onNavigate }: LearningContentManagem
                           onCheckedChange={() => handleToggleStatus(content.id)}
                         />
                       </div>
-                      <Button variant="outline" size="sm" className="w-full md:w-auto">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full md:w-auto"
+                        onClick={() => onNavigate("learning-content-detail", content.id)}
+                      >
                         <Eye className="size-4 mr-2" />
                         View Details
                       </Button>
