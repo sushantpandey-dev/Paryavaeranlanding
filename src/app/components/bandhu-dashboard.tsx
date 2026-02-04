@@ -61,7 +61,10 @@ export function BandhuDashboard({ onNavigate }: BandhuDashboardProps) {
                 <p className="text-sm font-semibold text-gray-900">{userData.name}</p>
                 <p className="text-xs text-gray-600">Bandhu</p>
               </div>
-              <div className="size-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+              <div 
+                onClick={() => onNavigate("profile")}
+                className="size-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-105"
+              >
                 {userData.name.charAt(0)}
               </div>
             </div>

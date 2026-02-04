@@ -19,8 +19,9 @@ import { LearningPortal } from "@/app/components/learning-portal";
 import { ReferralPortal } from "@/app/components/referral-portal";
 import { TaskManagement } from "@/app/components/task-management";
 import { SupportTickets } from "@/app/components/support-tickets";
+import { ProfilePage } from "@/app/components/profile-page";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -82,6 +83,8 @@ export default function App() {
       {currentPage === "tasks" && <TaskManagement onNavigate={handleNavigate} />}
 
       {currentPage === "support" && <SupportTickets onNavigate={handleNavigate} />}
+
+      {currentPage === "profile" && <ProfilePage onNavigate={handleNavigate} />}
     </div>
   );
 }
