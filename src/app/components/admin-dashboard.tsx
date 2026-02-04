@@ -12,6 +12,7 @@ import {
   AlertCircle,
   MapPin,
   Gift,
+  LifeBuoy,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -403,7 +404,7 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <Button
                 onClick={() => onNavigate("user-management")}
                 className="h-auto p-6 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md"
@@ -456,6 +457,17 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
                   <Gift className="size-8" />
                   <span className="font-semibold">Reward Config</span>
                   <span className="text-xs opacity-90">Configure rewards</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => onNavigate("support-management")}
+                className="h-auto p-6 bg-gradient-to-br from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white shadow-md"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <LifeBuoy className="size-8" />
+                  <span className="font-semibold">Support</span>
+                  <span className="text-xs opacity-90">Manage tickets & FAQs</span>
                 </div>
               </Button>
             </div>

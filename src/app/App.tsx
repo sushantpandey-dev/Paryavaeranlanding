@@ -27,8 +27,9 @@ import { LearningContentDetail } from "./components/learning-content-detail";
 import { TaskManagementAdmin } from "./components/task-management-admin";
 import { ReferralManagement } from "./components/referral-management";
 import { RewardConfiguration } from "./components/reward-configuration";
+import { SupportManagement } from "./components/support-management";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail" | "task-management-admin" | "referral-management" | "reward-configuration";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail" | "task-management-admin" | "referral-management" | "reward-configuration" | "support-management";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -110,6 +111,8 @@ export default function App() {
       {currentPage === "referral-management" && <ReferralManagement onNavigate={handleNavigate} />}
 
       {currentPage === "reward-configuration" && <RewardConfiguration onNavigate={handleNavigate} />}
+
+      {currentPage === "support-management" && <SupportManagement onNavigate={handleNavigate} />}
     </div>
   );
 }
