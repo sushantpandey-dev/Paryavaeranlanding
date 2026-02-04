@@ -21,8 +21,10 @@ import { TaskManagement } from "@/app/components/task-management";
 import { SupportTickets } from "@/app/components/support-tickets";
 import { ProfilePage } from "@/app/components/profile-page";
 import { AdminDashboard } from "@/app/components/admin-dashboard";
+import { UserManagement } from "@/app/components/user-management";
+import { LearningContentManagement } from "@/app/components/learning-content-management";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -88,6 +90,10 @@ export default function App() {
       {currentPage === "profile" && <ProfilePage onNavigate={handleNavigate} />}
 
       {currentPage === "admin-dashboard" && <AdminDashboard onNavigate={handleNavigate} />}
+
+      {currentPage === "user-management" && <UserManagement onNavigate={handleNavigate} />}
+
+      {currentPage === "learning-content-management" && <LearningContentManagement onNavigate={handleNavigate} />}
     </div>
   );
 }

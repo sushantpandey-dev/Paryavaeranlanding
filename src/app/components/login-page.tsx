@@ -63,8 +63,7 @@ export function LoginPage({ onNavigate }: LoginPageProps) {
         formData.email === "admin@paryavaran.com" &&
         formData.password === "admin123"
       ) {
-        alert("Login successful! Redirecting to Admin Dashboard...");
-        // In real app: redirect to admin dashboard
+        onNavigate("admin-dashboard");
       } else if (
         formData.email === "bandhu@paryavaran.com" &&
         formData.password === "bandhu123"

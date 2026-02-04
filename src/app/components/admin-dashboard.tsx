@@ -392,6 +392,63 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
           </CardContent>
         </Card>
 
+        {/* Quick Access Section */}
+        <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="size-5 text-blue-600" />
+              Quick Access
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Button
+                onClick={() => onNavigate("user-management")}
+                className="h-auto p-6 bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <Users className="size-8" />
+                  <span className="font-semibold">User Management</span>
+                  <span className="text-xs opacity-90">Manage Bandhu accounts</span>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => onNavigate("learning-content-management")}
+                className="h-auto p-6 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <ClipboardCheck className="size-8" />
+                  <span className="font-semibold">Learning Content</span>
+                  <span className="text-xs opacity-90">Manage educational content</span>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto p-6 border-2 hover:bg-gray-50"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <UserPlus className="size-8 text-purple-600" />
+                  <span className="font-semibold">Referral Review</span>
+                  <span className="text-xs text-gray-600">Verify referrals</span>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto p-6 border-2 hover:bg-gray-50"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <Coins className="size-8 text-amber-600" />
+                  <span className="font-semibold">Reward Config</span>
+                  <span className="text-xs text-gray-600">Configure rewards</span>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Recent Activity Section */}
         <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
           <CardHeader>
