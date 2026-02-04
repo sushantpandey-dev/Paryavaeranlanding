@@ -25,8 +25,9 @@ import { UserManagement } from "./components/user-management";
 import { LearningContentManagement } from "./components/learning-content-management";
 import { LearningContentDetail } from "./components/learning-content-detail";
 import { TaskManagementAdmin } from "./components/task-management-admin";
+import { ReferralManagement } from "./components/referral-management";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail" | "task-management-admin";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support" | "profile" | "admin-dashboard" | "user-management" | "learning-content-management" | "learning-content-detail" | "task-management-admin" | "referral-management";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -104,6 +105,8 @@ export default function App() {
       {currentPage === "learning-content-detail" && <LearningContentDetail onNavigate={handleNavigate} contentId={contentId} />}
 
       {currentPage === "task-management-admin" && <TaskManagementAdmin onNavigate={handleNavigate} />}
+
+      {currentPage === "referral-management" && <ReferralManagement onNavigate={handleNavigate} />}
     </div>
   );
 }

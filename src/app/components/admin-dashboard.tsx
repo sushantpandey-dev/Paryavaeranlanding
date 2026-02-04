@@ -437,13 +437,13 @@ export function AdminDashboard({ onNavigate }: AdminDashboardProps) {
               </Button>
 
               <Button
-                variant="outline"
-                className="h-auto p-6 border-2 hover:bg-gray-50"
+                onClick={() => onNavigate("referral-management")}
+                className="h-auto p-6 bg-gradient-to-br from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md"
               >
                 <div className="flex flex-col items-center gap-2">
-                  <UserPlus className="size-8 text-purple-600" />
+                  <UserPlus className="size-8" />
                   <span className="font-semibold">Referral Review</span>
-                  <span className="text-xs text-gray-600">Verify referrals</span>
+                  <span className="text-xs opacity-90">Verify referrals</span>
                 </div>
               </Button>
             </div>
