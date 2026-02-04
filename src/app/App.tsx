@@ -18,8 +18,9 @@ import { BandhuDashboard } from "@/app/components/bandhu-dashboard";
 import { LearningPortal } from "@/app/components/learning-portal";
 import { ReferralPortal } from "@/app/components/referral-portal";
 import { TaskManagement } from "@/app/components/task-management";
+import { SupportTickets } from "@/app/components/support-tickets";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals" | "tasks" | "support";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -79,6 +80,8 @@ export default function App() {
       {currentPage === "referrals" && <ReferralPortal onNavigate={handleNavigate} />}
 
       {currentPage === "tasks" && <TaskManagement onNavigate={handleNavigate} />}
+
+      {currentPage === "support" && <SupportTickets onNavigate={handleNavigate} />}
     </div>
   );
 }

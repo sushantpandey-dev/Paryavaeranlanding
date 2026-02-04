@@ -11,7 +11,8 @@ import {
   Target,
   Award,
   ArrowRight,
-  Leaf
+  Leaf,
+  MessageSquare
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Button } from "@/app/components/ui/button";
@@ -194,6 +195,14 @@ export function BandhuDashboard({ onNavigate }: BandhuDashboardProps) {
                 >
                   <UserPlus className="size-5 mr-2" />
                   Submit Referral
+                </Button>
+                <Button
+                  onClick={() => onNavigate("support")}
+                  className="w-full justify-start bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
+                  size="lg"
+                >
+                  <MessageSquare className="size-5 mr-2" />
+                  Support Tickets
                 </Button>
               </CardContent>
             </Card>
