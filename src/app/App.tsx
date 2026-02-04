@@ -16,8 +16,9 @@ import { LoginPage } from "@/app/components/login-page";
 import { SignupPage } from "@/app/components/signup-page";
 import { BandhuDashboard } from "@/app/components/bandhu-dashboard";
 import { LearningPortal } from "@/app/components/learning-portal";
+import { ReferralPortal } from "@/app/components/referral-portal";
 
-type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning";
+type Page = "home" | "faq" | "contact" | "login" | "signup" | "bandhu-dashboard" | "learning" | "referrals";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -73,6 +74,8 @@ export default function App() {
       {currentPage === "bandhu-dashboard" && <BandhuDashboard onNavigate={handleNavigate} />}
 
       {currentPage === "learning" && <LearningPortal onNavigate={handleNavigate} />}
+
+      {currentPage === "referrals" && <ReferralPortal onNavigate={handleNavigate} />}
     </div>
   );
 }
